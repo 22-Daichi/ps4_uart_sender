@@ -1,3 +1,4 @@
+#include <std_msgs/msg/string.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/joy.hpp>
 #include <termios.h>
@@ -46,6 +47,11 @@ public:
             this,
             std::placeholders::_1));
 
+    power_publisher_ =
+        create_publisher<std_msgs::msg::String>(
+            "/power_sensors",
+            10);
+
     timer_ = create_wall_timer( // PS4データ送信用タイマー
         std::chrono::milliseconds(50),
         std::bind(
@@ -70,6 +76,7 @@ private:
   sensor_msgs::msg::Joy::SharedPtr latest_joy_;
 
   rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr sub_;
+  rclcpp::Publisher<std_msgs::msg::String>::SharedPtr power_publisher_;
   rclcpp::TimerBase::SharedPtr timer_;
 
   rclcpp::TimerBase::SharedPtr receive_timer_; // 受信データを定期的にチェックするタイマー
@@ -214,6 +221,11 @@ private:
 
       if (line.rfind("PWR,", 0) == 0)
       {
+        std_msgs::msg::String message;
+        message.data = line;
+
+        power_publisher_->publish(message);
+
         RCLCPP_INFO(
             this->get_logger(),
             "Received: %s",
