@@ -13,9 +13,20 @@ find_package(std_msgs REQUIRED)
 
 add_executable(ps4_uart_node src/ps4_uart_node.cpp)
 ament_target_dependencies(ps4_uart_node rclcpp sensor_msgs std_msgs)
+add_executable(
+  csv_logger_node
+  src/csv_logger_node.cpp
+)
+
+ament_target_dependencies(
+  csv_logger_node
+  rclcpp
+  std_msgs
+)
 
 install(TARGETS
   ps4_uart_node
+  csv_logger_node
   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
